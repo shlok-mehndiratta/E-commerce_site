@@ -2,6 +2,16 @@
 
 {% block body %}
     <h2>Active Listings</h2>
-
-    TODO
+    {% for item in listings %}
+    <div>
+        <img src="" alt="">
+        <div>
+            <h3>Title</h3>
+            <strong>Price: $20</strong>
+            <h5>Description of the title</h5>
+        </div>
+    </div>
+    {% empty %}
+    <h3>No Listings</h3>
+    {% endfor %}
 {% endblock %}
