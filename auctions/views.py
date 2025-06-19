@@ -74,29 +74,14 @@ def create(request):
     if request.method == "POST":
         form = Create_Listing_form(request.POST)
         if form.is_valid():
-            title = form.cleaned_data['title']
-            description = form.cleaned_data['description']
-            price = form.cleaned_data['price']
-            imageUrl = form.cleaned_data['imageUrl']
-            category = form.cleaned_data['category']
-            other_category = form.cleaned_data['other_category']
-            isActive = True
-            owner = request.user
-
+            listing = form.save(commit=False)
+            other_category = form.cleaned_data.get('other_category')
             if other_category:
-                category, created = Category.objects.get_or_create(name=other_category)
-
-            Listings.objects.create(
-            title=title,
-            description=description,
-            price=price,
-            imageUrl=imageUrl,
-            category=category,
-            isActive=isActive,
-            owner=owner
-            )
-
-            return render(request, 'auctions/listing.html')
+                listing.category, _ = Category.objects.get_or_create(name=other_category)
+            listing.owner = request.user
+            listing.isActive = True
+            listing.save()
+            return render(request, "auctions/listing.html")
             
     
 def listing(request):

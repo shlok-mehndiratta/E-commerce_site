@@ -1,11 +1,24 @@
 from django import forms
-from .models import Category
+from .models import Category, Listings
 
+class Create_Listing_form(forms.ModelForm):
+    other_category = forms.CharField(
+        required=False,
+        label='Other (Specify)',
+        widget=forms.TextInput(attrs={'placeholder': 'Specify other category'})
+    )
 
-class Create_Listing_form(forms.Form):
-    title = forms.CharField(label='Title')
-    description = forms.CharField(widget=forms.Textarea, label='Description')
-    price = forms.DecimalField(label='Starting Bid')
-    imageUrl = forms.ImageField(label="Image url", required=False)
-    category = forms.ModelChoiceField(queryset=Category.objects.all(), label='Category', required=False)
-    other_category = forms.CharField(required=False, label='Other (Specify)', widget=forms.TextInput(attrs={'placeholder': 'Specify other category'}))
+    class Meta:
+        model = Listings
+        fields = ['title', 'description', 'price', 'imageUrl', 'category', 'other_category']
+        labels = {
+            'title': 'Title',
+            'description': 'Description',
+            'price': 'Starting Bid',
+            'imageUrl': 'Image url',
+            'category': 'Category',
+        }
+        widgets = {
+            'description': forms.Textarea(),
+        }
+
