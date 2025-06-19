@@ -1,17 +1,40 @@
-{% extends "auctions/layout.html" %}
+{% extends "auctions/layout.html" %} 
 
 {% block body %}
-    <h2>Active Listings</h2>
+<h2>Active Listings</h2>
+
+<form action="{% url 'displaycategory' %}" method="post" class="my-3">
+    {% csrf_token %}
+    <label for="category">Choose a Category: </label>
+    <select name="category" id="category">
+        {% for cat in categories %}
+        <option value="{{cat}}">{{cat}}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-warning" >Select</button>
+</form>
+
+<div class="row row-cols-1 row-cols-md-4 g-6">
     {% for item in listings %}
-    <div>
-        <img src="" alt="">
-        <div>
-            <h3>Title</h3>
-            <strong>Price: $20</strong>
-            <h5>Description of the title</h5>
+    <div class="col">
+        <div class="card h-100">
+            <img src="{{item.imageUrl}}" class="card-img-top" alt="No Image" style="max-height: 250px; width: 100%; height: auto;"/>
+            <div class="card-body">
+                <h5 class="card-title">{{item.title}}</h5>
+                <p class="card-text">Price: <strong>${{item.price}}</strong></p>
+                <p class="card-text">{{item.description}}</p>
+                <a href="#" class="btn btn-primary">Add Bid</a>
+            </div>
+            {% if item.category is not None %}
+            <div class="card-footer" style="padding: 5px;">
+            <small class="text-body-secondary">{{item.category}}</small>
+            </div>
+            {% endif %}
         </div>
     </div>
     {% empty %}
-    <h3>No Listings</h3>
+    <li>No Items Found.</li>
     {% endfor %}
+</div>
+
 {% endblock %}

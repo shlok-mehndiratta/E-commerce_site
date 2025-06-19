@@ -11,7 +11,12 @@ from .models import User, Category, Listings
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    activelistings = Listings.objects.filter(isActive=True)
+    allcategories = Category.objects.all()
+    return render(request, "auctions/index.html", {
+        "listings": activelistings,
+        "categories": allcategories
+    })
 
 
 def login_view(request):
@@ -91,3 +96,15 @@ def create(request):
     
 def listing(request):
     return render(request, "auctions/listing.html")
+
+def displaycategory(request):
+    if request.method == "POST":
+        selected_cat = request.POST['category']
+        category = Category.objects.get(categoryName=selected_cat)
+        activelistings = Listings.objects.filter(isActive=True, category=category)
+        allcategories = Category.objects.all()
+        return render(request, "auctions/index.html", {
+            "listings": activelistings,
+            "categories": allcategories
+        })
+    return HttpResponse(f'hello')
