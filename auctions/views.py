@@ -3,26 +3,11 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from django import forms
 
-from .models import User
+from .forms import Create_Listing_form
+from .models import User, Category, Listings
 
-Choices =  [
-    ('', '---------'),  # Optional empty selection
-    ('home', 'Home'),
-    ('toys', 'Toys'),
-    ('fashion', 'Fashion'),
-    ('electronics', 'Electronics'),
-    ('other', 'Other (Specify Below)'),
-]
 
-class Create_Listing_form(forms.Form):
-    title = forms.CharField(label='Title')
-    description = forms.CharField(widget=forms.Textarea, label='Description')
-    start_bid = forms.IntegerField(label='Starting Bid')
-    img_url = forms.ImageField(label="Image url", required=False)
-    category = forms.ChoiceField(choices=Choices, label='Category', required=False)
-    other_category = forms.CharField(required=False, label='Other (Specify)', widget=forms.TextInput(attrs={'placeholder': 'Specify other category'}))
 
 
 def index(request):
@@ -86,3 +71,33 @@ def create(request):
         return render(request, "auctions/create.html", {
             'form': Create_Listing_form()
         })
+    if request.method == "POST":
+        form = Create_Listing_form(request.POST)
+        if form.is_valid():
+            title = form.cleaned_data['title']
+            description = form.cleaned_data['description']
+            price = form.cleaned_data['price']
+            imageUrl = form.cleaned_data['imageUrl']
+            category = form.cleaned_data['category']
+            other_category = form.cleaned_data['other_category']
+            isActive = True
+            owner = request.user
+
+            if other_category:
+                category, created = Category.objects.get_or_create(name=other_category)
+
+            Listings.objects.create(
+            title=title,
+            description=description,
+            price=price,
+            imageUrl=imageUrl,
+            category=category,
+            isActive=isActive,
+            owner=owner
+            )
+
+            return render(request, 'auctions/listing.html')
+            
+    
+def listing(request):
+    return render(request, "auctions/listing.html")
