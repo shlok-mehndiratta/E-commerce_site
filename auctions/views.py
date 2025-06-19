@@ -77,11 +77,16 @@ def create(request):
             listing = form.save(commit=False)
             other_category = form.cleaned_data.get('other_category')
             if other_category:
-                listing.category, _ = Category.objects.get_or_create(name=other_category)
+                category_obj, _ = Category.objects.get_or_create(categoryName=other_category)
+                listing.category = category_obj
             listing.owner = request.user
             listing.isActive = True
             listing.save()
             return render(request, "auctions/listing.html")
+        else:
+            return render(request, "auctions/create.html", {
+            'form': Create_Listing_form()
+        })
             
     
 def listing(request):
