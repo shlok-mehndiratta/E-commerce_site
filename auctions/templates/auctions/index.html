@@ -23,7 +23,7 @@
                 <h5 class="card-title">{{item.title}}</h5>
                 <p class="card-text">Price: <strong>${{item.price}}</strong></p>
                 <p class="card-text">{{item.description}}</p>
-                <a href="#" class="btn btn-primary">Add Bid</a>
+                <a href="{% url 'listing' id=item.id %}" class="btn btn-primary">Add Bid</a>
             </div>
             {% if item.category is not None %}
             <div class="card-footer" style="padding: 5px;">

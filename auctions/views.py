@@ -94,8 +94,13 @@ def create(request):
         })
             
     
-def listing(request):
-    return render(request, "auctions/listing.html")
+def listing(request, id):
+    listingdata = Listings.objects.get(pk=id)
+    isListingInWatchlist = request.user in listingdata.watchlist.all()
+    return render(request, "auctions/listing.html", {
+        "listing": listingdata,
+        "isListingInWatchlist" : isListingInWatchlist
+    })
 
 def displaycategory(request):
     if request.method == "POST":
@@ -107,4 +112,16 @@ def displaycategory(request):
             "listings": activelistings,
             "categories": allcategories
         })
-    return HttpResponse(f'hello')
+
+
+def watchlist(request):
+    if request.method == "POST":
+        task = request.POST["todo"]
+        id = request.POST["id"]
+        listingdata = Listings.objects.get(pk=id)
+        currentUser = request.user
+        if task == 'add':
+            listingdata.watchlist.add(currentUser)
+        elif task == 'remove':
+            listingdata.watchlist.remove(currentUser)
+        return HttpResponseRedirect(reverse("listing", args=(id, )))
