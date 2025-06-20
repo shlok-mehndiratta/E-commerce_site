@@ -1,0 +1,33 @@
+{% extends "auctions/layout.html" %} 
+
+{% block body %}
+<h2>My Watchlist</h2>
+<div class="row row-cols-1 row-cols-md-4 g-6">
+    {% for item in listings %}
+    <div class="col">
+        <div class="card h-100">
+            <img src="{{item.imageUrl}}" class="card-img-top" alt="No Image" style="max-height: 250px; width: 100%; height: auto;"/>
+            <div class="card-body">
+                <h5 class="card-title">{{item.title}}</h5>
+                <p class="card-text">Price: <strong>${{item.price}}</strong></p>
+                <p class="card-text">{{item.description}}</p>
+                <a href="{% url 'listing' id=item.id %}" class="btn btn-primary mb-2">Add Bid</a>
+            <form action="{% url 'watchlist' %}" method="POST" >
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{ listing.id }}">
+                <button type="submit" class="btn btn-md btn-warning mb-3" name="todo" value="remove">Remove from Watchlist</button>
+            </form>
+            </div>
+            {% if item.category is not None %}
+            <div class="card-footer" style="padding: 5px;">
+            <small class="text-body-secondary">{{item.category}}</small>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <li>No Items In watchlist.</li>
+    {% endfor %}
+</div>
+
+{% endblock %}

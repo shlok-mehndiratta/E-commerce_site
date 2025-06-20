@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .forms import Create_Listing_form
-from .models import User, Category, Listings
+from .models import User, Category, Listings, Bids, Comments
 
 
 
@@ -71,36 +71,76 @@ def register(request):
         return render(request, "auctions/register.html")
 
 
+
 def create(request):
     if request.method == "GET":
         return render(request, "auctions/create.html", {
             'form': Create_Listing_form()
         })
+
     if request.method == "POST":
         form = Create_Listing_form(request.POST)
         if form.is_valid():
-            listing = form.save(commit=False)
+            # Get the cleaned form data
+            starting_bid_amount = form.cleaned_data['starting_bid']
             other_category = form.cleaned_data.get('other_category')
+
+            # Create the Listings object, but don't save it yet
+            listing = form.save(commit=False)
+            listing.owner = request.user
+            listing.isActive = True
+
+            # Create the Bids object (starting price)
+            bid_obj = Bids.objects.create(bid=starting_bid_amount, user=request.user, listing=listing)
+
+            listing.price = bid_obj  # link the created bid to the listing
+
+            # Handle "Other" category if specified
             if other_category:
                 category_obj, _ = Category.objects.get_or_create(categoryName=other_category)
                 listing.category = category_obj
-            listing.owner = request.user
-            listing.isActive = True
+
+            # Save the listing after all modifications
             listing.save()
-            return render(request, "auctions/listing.html")
+
+            # Check if listing is in user's watchlist (initially not)
+            isListingInWatchlist = request.user in listing.watchlist.all()
+
+            return render(request, "auctions/listing.html", {
+                "listing": listing,
+                "isListingInWatchlist": isListingInWatchlist
+            })
+
         else:
+            # Re-render the form with errors
             return render(request, "auctions/create.html", {
-            'form': Create_Listing_form()
-        })
+                'form': form
+            })
+
             
     
 def listing(request, id):
     listingdata = Listings.objects.get(pk=id)
     isListingInWatchlist = request.user in listingdata.watchlist.all()
+    # Handle update message from GET parameter
+    update = request.GET.get('update')
+    if update == 'success':
+        message = True
+        update = 'True'
+    elif update == 'fail':
+        message = True
+        update = 'False'
+    else:
+        message = False
+        update = None
+
     return render(request, "auctions/listing.html", {
         "listing": listingdata,
-        "isListingInWatchlist" : isListingInWatchlist
+        "isListingInWatchlist": isListingInWatchlist,
+        "message": message,
+        "update": update,
     })
+
 
 def displaycategory(request):
     if request.method == "POST":
@@ -125,3 +165,26 @@ def watchlist(request):
         elif task == 'remove':
             listingdata.watchlist.remove(currentUser)
         return HttpResponseRedirect(reverse("listing", args=(id, )))
+    else:
+        currentuser = request.user
+        listings = currentuser.userwatchlist.all()
+        return render(request, "auctions/watchlist.html", {
+            'listings': listings
+        })
+
+
+def addbid(request):
+    if request.method == 'POST':
+        newbid = request.POST['newbid']
+        id = request.POST['id']
+        listingdata = Listings.objects.get(pk=id)
+
+        if int(newbid) > listingdata.price.bid:
+            updatebid = Bids(user=request.user, bid=int(newbid), listing=listingdata)
+            updatebid.save()
+            listingdata.price = updatebid
+            listingdata.save()
+            return HttpResponseRedirect(f'/listing/{id}?update=success')     
+        else:
+            return HttpResponseRedirect(f'/listing/{id}?update=fail')
+    

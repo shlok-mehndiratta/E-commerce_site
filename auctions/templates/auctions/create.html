@@ -4,15 +4,34 @@
 Listings
 {% endblock %}
 
-
 {% block body %}
-    <h1>Create Listings</h1>
-    <form action="" method="POST">
-        {% csrf_token %}
-        
-        {{ form.as_p }}
+<div class="container mt-5">
+    <div class="card shadow rounded-lg">
+        <div class="card-header bg-info text-white">
+            <h2 class="mb-0">Create New Listing</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST" novalidate>
+                {% csrf_token %}
+                
+                {% for field in form %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
 
-        <input type="submit" value="Add Listing">
-    </form>
-
+                <div class="text-right">
+                    <input type="submit" class="btn btn-success" value="Add Listing">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -11,22 +11,44 @@
             <button type="submit" class="btn btn-success" name="todo" value="add" >Add to Watchlist</button>
 
             {% else %}
-            <button type="submit" class="btn btn-danger" name="todo" value="remove">Remove from Watchlist</button>
+            <button type="submit" class="btn btn-md btn-danger mb-3" name="todo" value="remove">Remove from Watchlist</button>
             {% endif %}
         </form>
         
     {% endif %}
     </div>
 
-    <h2>Item: {{listing.title}}</h2>
-    <img src="{{listing.imageUrl}}" alt="{{listing.title}}">
-    <p>{{listing.description}}</p>
-    <h5><strong>${{listing.price}}</strong></h5>
-    <h6></h6>
-    <h6>Details</h6>
-    <ul>
-        <li>Listed by: {{listing.owner}}</li>
-        <li>Category: {% if listing.category %} {{listing.category}} {% else %} No Category Listed {% endif %}</li>
-    </ul>
+    {% if message %}
+        {% if update == 'True' %}
+        <div class="alert alert-success" role="alert">
+        Bid updated Successfully
+        </div>
+        {% elif update == 'False' %}
+        <div class="alert alert-danger" role="alert">
+        Bid was no updated. Enter valid bid.
+        </div>
+        {% endif %}
+    {% endif %}
+
+    <div class="mx-4">
+        <h2>Item: {{listing.title}}</h2>
+        <img src="{{listing.imageUrl}}" alt="{{listing.title}}">
+        <p>{{listing.description}}</p>
+        <h5><strong>${{listing.price}}</strong></h5>
+        <form action="{% url 'addbid' %}" method="post">
+            {% csrf_token %}
+            <div class="form-text" id="basic-addon4">Your Bid here</div> 
+            <input type="hidden" name="id" value="{{ listing.id }}">
+            <input type="number" class="form-control mb-3 w-50" placeholder="Bid value" name="newbid">
+            <button class="btn btn-primary" type="submit" id="button-addon2">Place Bid</button>
+        </form>
+        <div class="my-3">
+            <h6>Details</h6>
+            <ul>
+                <li>Listed by: {{listing.owner}}</li>
+                <li>Category: {% if listing.category %} {{listing.category}} {% else %} No Category Listed {% endif %}</li>
+            </ul>
+        </div>
+    </div>
     
 {% endblock %}
