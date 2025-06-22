@@ -71,7 +71,6 @@ def register(request):
         return render(request, "auctions/register.html")
 
 
-
 def create(request):
     if request.method == "GET":
         return render(request, "auctions/create.html", {
@@ -116,7 +115,6 @@ def create(request):
             return render(request, "auctions/create.html", {
                 'form': form
             })
-
             
     
 def listing(request, id):
