@@ -1,8 +1,8 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <div class="mx-3">
-    {% if user.is_authenticated %}
+    <div class="mx-4 btn-group" role="group" aria-label="Basic example">
+    {% if user.is_authenticated and listing.isActive == True %}
         
         <form action="{% url 'watchlist' %}" method="POST" >
             {% csrf_token %}
@@ -15,12 +15,25 @@
             {% endif %}
         </form>
         
+
+        {% if user == listing.owner and listing.isActive == True %}
+            <form action="{% url 'close_auction' %}" method="post" class="mx-4">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{ listing.id }}">
+                <button type="submit" class="row btn btn-md btn-danger mb-3" name="closelisting" value="close">Close this Listing</button>
+            </form>
+        {% endif %}
     {% endif %}
     </div>
 
-    <div>
-        <button type="submit" class="btn btn-md btn-danger mb-3" name="closelisting" value="close">Close Listing</button>
+    {% if listing.isActive == False and user == listing.price.user %}
+    <div class="alert alert-success" role="alert">
+        <h4 class="alert-heading">Congratulations!</h4>
+            <p>You have won the auction for <strong>'{{listing.title}}'</strong> with the bid value of <strong>${{listing.price}}</strong>.</p>
+            <hr>
+        <p class="mb-0">We will reach out to you shortly regarding further procedure.</p>
     </div>
+    {% endif %}
 
     {% if message %}
         {% if update == 'True' %}
@@ -34,18 +47,32 @@
         {% endif %}
     {% endif %}
 
-    <div class="mx-4">
-        <h2>Item: {{listing.title}}</h2>
-        <img src="{{listing.imageUrl}}" alt="{{listing.title}}">
+
+
+    <div class="mx-4 my-3">
+        <h2>Item: <strong>{{listing.title}}</strong></h2>
+        <img src="{{listing.imageUrl}}" alt="{{listing.title}}" class="m-2">
         <p>{{listing.description}}</p>
         <h5><strong>${{listing.price}}</strong></h5>
+
+        {% if listing.isActive == True %}
         <form action="{% url 'addbid' %}" method="post">
-            {% csrf_token %}
-            <div class="form-text" id="basic-addon4">Your Bid here</div> 
+            {% csrf_token %} 
+            <div class="form-text" id="basic-addon4">Your Bid here</div>
             <input type="hidden" name="id" value="{{ listing.id }}">
             <input type="number" class="form-control mb-3 w-50" placeholder="Bid value" name="newbid">
+            {% if user.is_authenticated %}
             <button class="btn btn-primary" type="submit" id="button-addon2">Place Bid</button>
+            {% else %}
+            <a href="{% url 'login' %}" class="btn btn-info" type="submit" id="button-addon2" >Log In to add bid</a>
+            {% endif %}
         </form>
+        {% else %}
+        <div class="text-danger">
+           <h5> <strong>Auction Closed !</h5></strong>  
+        </div>
+        {% endif %}
+
         <div class="my-3">
             <h6>Details</h6>
             <ul>

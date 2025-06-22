@@ -186,3 +186,13 @@ def addbid(request):
         else:
             return HttpResponseRedirect(f'/listing/{id}?update=fail')
     
+def close_auction(request):
+    if request.method == "POST":
+        id = request.POST['id']
+        listing = Listings.objects.get(pk=id)
+        listing.isActive = False
+        listing.save()
+
+        return render(request, "auctions/listing.html", {
+        "listing": listing,
+    })
