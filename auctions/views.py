@@ -77,40 +77,38 @@ def create(request):
             'form': Create_Listing_form()
         })
 
-    if request.method == "POST":
+    elif request.method == "POST":
         form = Create_Listing_form(request.POST)
         if form.is_valid():
-            # Get the cleaned form data
-            starting_bid_amount = form.cleaned_data['starting_bid']
-            other_category = form.cleaned_data.get('other_category')
-
-            # Create the Listings object, but don't save it yet
+            # Temporarily save the listing without committing to DB
             listing = form.save(commit=False)
+
+            # Attach owner and isActive
             listing.owner = request.user
             listing.isActive = True
 
-            # Create the Bids object (starting price)
-            bid_obj = Bids.objects.create(bid=starting_bid_amount, user=request.user, listing=listing)
-
-            listing.price = bid_obj  # link the created bid to the listing
-
-            # Handle "Other" category if specified
+            # Handle "Other" category if provided
+            other_category = form.cleaned_data.get('other_category')
             if other_category:
                 category_obj, _ = Category.objects.get_or_create(categoryName=other_category)
                 listing.category = category_obj
 
-            # Save the listing after all modifications
+            # Save listing now (without price, because it's FK to Bids)
             listing.save()
 
-            # Check if listing is in user's watchlist (initially not)
-            isListingInWatchlist = request.user in listing.watchlist.all()
-            comments = Comments.objects.filter(listing=listing)
+            # Create the first bid and associate it
+            starting_bid = form.cleaned_data.get('starting_bid')  # This is the starting price value
+            bid_obj = Bids.objects.create(
+                bid=starting_bid,
+                user=request.user,
+                listing=listing
+            )
 
-            return render(request, "auctions/listing.html", {
-                "listing": listing,
-                "isListingInWatchlist": isListingInWatchlist,
-                "comments": comments
-            })
+            # Link bid to listing and save again
+            listing.price = bid_obj
+            listing.save()
+
+            return HttpResponseRedirect(reverse('listing', args=(listing.id, )))
 
         else:
             # Re-render the form with errors
@@ -155,21 +153,31 @@ def displaycategory(request):
             "categories": allcategories
         })
 
-
 def watchlist(request):
     if request.method == "POST":
         task = request.POST["todo"]
         id = request.POST["id"]
         listingdata = Listings.objects.get(pk=id)
         currentUser = request.user
+
+        if not currentUser.is_authenticated:
+            return HttpResponseRedirect(reverse("login"))
+
         if task == 'add':
             listingdata.watchlist.add(currentUser)
         elif task == 'remove':
             listingdata.watchlist.remove(currentUser)
+
         return HttpResponseRedirect(reverse("listing", args=(id, )))
+
     else:
-        currentuser = request.user
-        listings = currentuser.userwatchlist.all()
+        currentUser = request.user
+        if not currentUser.is_authenticated:
+            return render(request, "auctions/watchlist.html", {
+                'listings': []
+            })
+
+        listings = currentUser.userwatchlist.all()
         return render(request, "auctions/watchlist.html", {
             'listings': listings
         })
@@ -199,11 +207,7 @@ def close_auction(request):
 
         comments = Comments.objects.filter(listing=listing)
 
-        return render(request, "auctions/listing.html", {
-        "listing": listing,
-        "comments": comments,
-    })
-
+        return HttpResponseRedirect(reverse('listing', args=(id, )))
 
 def addcomment(request):
     if request.method == "POST":
@@ -217,9 +221,5 @@ def addcomment(request):
         isListingInWatchlist = request.user in listing.watchlist.all()
         comments = Comments.objects.filter(listing=listing)
 
-        return render(request, 'auctions/listing.html', {
-            "listing": listing,
-            "isListingInWatchlist": isListingInWatchlist,
-            "comments": comments,
-        })
+        return HttpResponseRedirect(reverse('listing', args=(id, )))
 

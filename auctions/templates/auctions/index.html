@@ -1,40 +1,56 @@
 {% extends "auctions/layout.html" %} 
 
 {% block body %}
-<h2>Active Listings</h2>
+<div class="container my-4">
 
-<form action="{% url 'displaycategory' %}" method="post" class="my-3">
-    {% csrf_token %}
-    <label for="category">Choose a Category: </label>
-    <select name="category" id="category">
-        {% for cat in categories %}
-        <option value="{{cat}}">{{cat}}</option>
-        {% endfor %}
-    </select>
-    <button type="submit" class="btn btn-warning" >Select</button>
-</form>
+    <h2 class="mb-4">🛍️ Active Listings</h2>
 
-<div class="row row-cols-1 row-cols-md-4 g-6">
-    {% for item in listings %}
-    <div class="col">
-        <div class="card h-100">
-            <img src="{{item.imageUrl}}" class="card-img-top" alt="No Image" style="max-height: 250px; width: 100%; height: auto;"/>
-            <div class="card-body">
-                <h5 class="card-title">{{item.title}}</h5>
-                <p class="card-text">Price: <strong>${{item.price}}</strong></p>
-                <p class="card-text">{{item.description}}</p>
-                <a href="{% url 'listing' id=item.id %}" class="btn btn-primary">Add Bid</a>
-            </div>
-            {% if item.category is not None %}
-            <div class="card-footer" style="padding: 5px;">
-            <small class="text-body-secondary">{{item.category}}</small>
-            </div>
-            {% endif %}
+    <!-- Category Filter -->
+    <form action="{% url 'displaycategory' %}" method="post" class="row g-2 align-items-center mb-4">
+        {% csrf_token %}
+        <div class="col-auto">
+            <label for="category" class="form-label fw-semibold">Filter by Category:</label>
         </div>
-    </div>
-    {% empty %}
-    <li>No Items Found.</li>
-    {% endfor %}
-</div>
+        <div class="col-auto">
+            <select name="category" id="category" class="form-select">
+                {% for cat in categories %}
+                    <option value="{{ cat }}">{{ cat }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-warning">Apply</button>
+        </div>
+    </form>
 
+    <!-- Listings Grid -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for item in listings %}
+        <div class="col my-3">
+            <div class="card h-100 shadow-sm border-0">
+                <img src="{{ item.imageUrl }}" class="card-img-top rounded-top" alt="No Image"
+                     style="object-fit: cover; height: 220px;">
+
+                <div class="card-body">
+                    <h5 class="card-title">{{ item.title }}</h5>
+                    <p class="card-text text-primary fw-bold mb-1">Price: ${{ item.price }}</p>
+                    <p class="card-text text-muted" style="font-size: 0.95rem;">{{ item.description|truncatechars:100 }}</p>
+                    <a href="{% url 'listing' id=item.id %}" class="btn btn-outline-primary w-100 mt-2">Place a Bid</a>
+                </div>
+
+                {% if item.category %}
+                <div class="card-footer bg-light text-center py-1">
+                    <small class="text-muted">{{ item.category }}</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="col text-center text-muted">
+            <p>No items found.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
 {% endblock %}

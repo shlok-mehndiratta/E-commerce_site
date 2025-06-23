@@ -86,10 +86,13 @@
         </div>
     </div>
 
+
     <!-- Comments Section -->
-    <div class="card bg-light shadow-sm mb-4">
-        <div class="card-body">
-            <h4 class="mb-3">💬 Leave a Comment</h4>
+<div class="card bg-light shadow-sm mb-4">
+    <div class="card-body">
+        <h4 class="mb-3">💬 Leave a Comment</h4>
+
+        {% if user.is_authenticated %}
             <form action="{% url 'addcomment' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="id" value="{{ listing.id }}">
@@ -99,23 +102,30 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Post Comment</button>
             </form>
-
-            <hr class="my-4">
-
-            <h5>All Comments</h5>
-            <div class="comments-container" style="max-height: 250px; overflow-y: auto;">
-                {% for comment in comments %}
-                <div class="p-3 my-2 bg-white border rounded shadow-sm">
-                    <strong>{{ comment.author }}</strong><br>
-                    <span class="text-muted small">{{ comment.timestamp }}</span>
-                    <p class="mb-0">{{ comment.message }}</p>
-                </div>
-                {% empty %}
-                <div class="text-muted text-center">No comments yet. Be the first!</div>
-                {% endfor %}
+        {% else %}
+            <div class="alert alert-warning text-center">
+                You must be <strong>logged in</strong> to leave a comment.
+                <br>
+                <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm mt-3">🔐 Log In</a>
             </div>
+        {% endif %}
+
+        <hr class="my-4">
+
+        <h5>All Comments</h5>
+        <div class="comments-container" style="max-height: 250px; overflow-y: auto;">
+            {% for comment in comments %}
+            <div class="p-3 my-2 bg-white border rounded shadow-sm">
+                <strong>{{ comment.author }}</strong><br>
+                <span class="text-muted small">{{ comment.timestamp }}</span>
+                <p class="mb-0">{{ comment.message }}</p>
+            </div>
+            {% empty %}
+            <div class="text-muted text-center">No comments yet. Be the first!</div>
+            {% endfor %}
         </div>
     </div>
+</div>
 
 </div>
 {% endblock %}
