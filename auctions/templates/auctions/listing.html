@@ -1,85 +1,121 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <div class="mx-4 btn-group" role="group" aria-label="Basic example">
-    {% if user.is_authenticated and listing.isActive == True %}
-        
-        <form action="{% url 'watchlist' %}" method="POST" >
+<div class="container my-4">
+
+    <!-- Watchlist & Close Auction -->
+    {% if user.is_authenticated and listing.isActive %}
+    <div class="d-flex gap-3 mb-4">
+
+        <form action="{% url 'watchlist' %}" method="POST">
             {% csrf_token %}
             <input type="hidden" name="id" value="{{ listing.id }}">
             {% if not isListingInWatchlist %}
-            <button type="submit" class="btn btn-success" name="todo" value="add" >Add to Watchlist</button>
-
+            <button type="submit" class="btn btn-outline-success" name="todo" value="add">★ Add to Watchlist</button>
             {% else %}
-            <button type="submit" class="btn btn-md btn-danger mb-3" name="todo" value="remove">Remove from Watchlist</button>
+            <button type="submit" class="btn btn-outline-danger" name="todo" value="remove"> Remove from Watchlist</button>
             {% endif %}
         </form>
-        
 
-        {% if user == listing.owner and listing.isActive == True %}
-            <form action="{% url 'close_auction' %}" method="post" class="mx-4">
-                {% csrf_token %}
-                <input type="hidden" name="id" value="{{ listing.id }}">
-                <button type="submit" class="row btn btn-md btn-danger mb-3" name="closelisting" value="close">Close this Listing</button>
-            </form>
+        {% if user == listing.owner %}
+        <form action="{% url 'close_auction' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="id" value="{{ listing.id }}">
+            <button type="submit" class="btn btn-danger">🔒 Close Listing</button>
+        </form>
         {% endif %}
-    {% endif %}
-    </div>
-
-    {% if listing.isActive == False and user == listing.price.user %}
-    <div class="alert alert-success" role="alert">
-        <h4 class="alert-heading">Congratulations!</h4>
-            <p>You have won the auction for <strong>'{{listing.title}}'</strong> with the bid value of <strong>${{listing.price}}</strong>.</p>
-            <hr>
-        <p class="mb-0">We will reach out to you shortly regarding further procedure.</p>
     </div>
     {% endif %}
 
+    <!-- Success message for winner -->
+    {% if not listing.isActive and user == listing.price.user %}
+    <div class="alert alert-success shadow-sm" role="alert">
+        <h4 class="alert-heading">🎉 Congratulations!</h4>
+        <p>You won the auction for <strong>"{{ listing.title }}"</strong> at <strong>${{ listing.price }}</strong>.</p>
+        <hr>
+        <p class="mb-0">We’ll reach out shortly with further details.</p>
+    </div>
+    {% endif %}
+
+    <!-- Bid Update Messages -->
     {% if message %}
         {% if update == 'True' %}
-        <div class="alert alert-success" role="alert">
-        Bid updated Successfully
-        </div>
-        {% elif update == 'False' %}
-        <div class="alert alert-danger" role="alert">
-        Bid was no updated. Enter valid bid.
-        </div>
+        <div class="alert alert-success">Bid updated successfully!</div>
+        {% else %}
+        <div class="alert alert-danger">Bid not updated. Enter a valid amount.</div>
         {% endif %}
     {% endif %}
 
+    <!-- Listing Info -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="card-title">{{ listing.title }}</h2>
+            <img src="{{ listing.imageUrl }}" alt="{{ listing.title }}" class="img-fluid my-3 rounded">
+            <p class="card-text">{{ listing.description }}</p>
+            <h4 class="text-primary mb-3">${{ listing.price }}</h4>
 
-
-    <div class="mx-4 my-3">
-        <h2>Item: <strong>{{listing.title}}</strong></h2>
-        <img src="{{listing.imageUrl}}" alt="{{listing.title}}" class="m-2">
-        <p>{{listing.description}}</p>
-        <h5><strong>${{listing.price}}</strong></h5>
-
-        {% if listing.isActive == True %}
-        <form action="{% url 'addbid' %}" method="post">
-            {% csrf_token %} 
-            <div class="form-text" id="basic-addon4">Your Bid here</div>
-            <input type="hidden" name="id" value="{{ listing.id }}">
-            <input type="number" class="form-control mb-3 w-50" placeholder="Bid value" name="newbid">
-            {% if user.is_authenticated %}
-            <button class="btn btn-primary" type="submit" id="button-addon2">Place Bid</button>
+            {% if listing.isActive %}
+            <form action="{% url 'addbid' %}" method="post" class="w-100 w-md-50">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{ listing.id }}">
+                <label for="bid" class="form-label">Place your Bid</label>
+                <input type="number" class="form-control mb-3" id="bid" name="newbid" placeholder="Enter bid amount">
+                {% if user.is_authenticated %}
+                <button class="btn btn-primary">Place Bid</button>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline-info">Log in to Bid</a>
+                {% endif %}
+            </form>
             {% else %}
-            <a href="{% url 'login' %}" class="btn btn-info" type="submit" id="button-addon2" >Log In to add bid</a>
+            <div class="alert alert-secondary mt-3">🚫 This auction has ended.</div>
             {% endif %}
-        </form>
-        {% else %}
-        <div class="text-danger">
-           <h5> <strong>Auction Closed !</h5></strong>  
-        </div>
-        {% endif %}
 
-        <div class="my-3">
-            <h6>Details</h6>
-            <ul>
-                <li>Listed by: {{listing.owner}}</li>
-                <li>Category: {% if listing.category %} {{listing.category}} {% else %} No Category Listed {% endif %}</li>
-            </ul>
+            <div class="mt-4">
+                <h6>Details</h6>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>Listed by:</strong> {{ listing.owner }}</li>
+                    <li class="list-group-item"><strong>Category:</strong> 
+                        {% if listing.category %}
+                            {{ listing.category }}
+                        {% else %}
+                            <em>Not specified</em>
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
-    
+
+    <!-- Comments Section -->
+    <div class="card bg-light shadow-sm mb-4">
+        <div class="card-body">
+            <h4 class="mb-3">💬 Leave a Comment</h4>
+            <form action="{% url 'addcomment' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{ listing.id }}">
+                <div class="mb-3">
+                    <label for="comment" class="form-label">Your Comment</label>
+                    <textarea class="form-control" id="comment" name="comment" rows="3" placeholder="Share your thoughts..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Post Comment</button>
+            </form>
+
+            <hr class="my-4">
+
+            <h5>All Comments</h5>
+            <div class="comments-container" style="max-height: 250px; overflow-y: auto;">
+                {% for comment in comments %}
+                <div class="p-3 my-2 bg-white border rounded shadow-sm">
+                    <strong>{{ comment.author }}</strong><br>
+                    <span class="text-muted small">{{ comment.timestamp }}</span>
+                    <p class="mb-0">{{ comment.message }}</p>
+                </div>
+                {% empty %}
+                <div class="text-muted text-center">No comments yet. Be the first!</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>
 {% endblock %}

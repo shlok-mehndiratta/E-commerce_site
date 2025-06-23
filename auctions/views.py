@@ -104,10 +104,12 @@ def create(request):
 
             # Check if listing is in user's watchlist (initially not)
             isListingInWatchlist = request.user in listing.watchlist.all()
+            comments = Comments.objects.filter(listing=listing)
 
             return render(request, "auctions/listing.html", {
                 "listing": listing,
-                "isListingInWatchlist": isListingInWatchlist
+                "isListingInWatchlist": isListingInWatchlist,
+                "comments": comments
             })
 
         else:
@@ -120,6 +122,7 @@ def create(request):
 def listing(request, id):
     listingdata = Listings.objects.get(pk=id)
     isListingInWatchlist = request.user in listingdata.watchlist.all()
+    comments = Comments.objects.filter(listing=listingdata)
     # Handle update message from GET parameter
     update = request.GET.get('update')
     if update == 'success':
@@ -137,6 +140,7 @@ def listing(request, id):
         "isListingInWatchlist": isListingInWatchlist,
         "message": message,
         "update": update,
+        "comments": comments,
     })
 
 
@@ -193,6 +197,29 @@ def close_auction(request):
         listing.isActive = False
         listing.save()
 
+        comments = Comments.objects.filter(listing=listing)
+
         return render(request, "auctions/listing.html", {
         "listing": listing,
+        "comments": comments,
     })
+
+
+def addcomment(request):
+    if request.method == "POST":
+        id = request.POST['id']
+        listing = Listings.objects.get(pk=id)
+        msg = request.POST["comment"]
+
+        comment = Comments.objects.create(author=request.user, listing=listing, message=msg)
+        comment.save()
+
+        isListingInWatchlist = request.user in listing.watchlist.all()
+        comments = Comments.objects.filter(listing=listing)
+
+        return render(request, 'auctions/listing.html', {
+            "listing": listing,
+            "isListingInWatchlist": isListingInWatchlist,
+            "comments": comments,
+        })
+
