@@ -1,5 +1,5 @@
 from django import forms
-from .models import Category, Listings
+from .models import Listings
 
 class Create_Listing_form(forms.ModelForm):
     starting_bid = forms.FloatField(
