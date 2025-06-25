@@ -23,7 +23,7 @@
                             Add Bid
                         </a>
 
-                        <form action="{% url 'watchlist' %}" method="post">
+                        <form action="{% url 'watchlist' %}" method="POST">
                             {% csrf_token %}
                             <input type="hidden" name="id" value="{{ item.id }}">
                             <button type="submit" class="btn btn-sm btn-warning w-100" name="todo" value="remove">
