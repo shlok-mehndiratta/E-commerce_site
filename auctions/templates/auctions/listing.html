@@ -21,7 +21,7 @@
         <form action="{% url 'close_auction' %}" method="post">
             {% csrf_token %}
             <input type="hidden" name="id" value="{{ listing.id }}">
-            <button type="submit" class="btn btn-danger">🔒 Close Listing</button>
+            <button type="submit" class="btn btn-danger mx-2">Close Listing</button>
         </form>
         {% endif %}
     </div>
@@ -58,7 +58,11 @@
             <form action="{% url 'addbid' %}" method="post" class="w-100 w-md-50">
                 {% csrf_token %}
                 <input type="hidden" name="id" value="{{ listing.id }}">
-                <label for="bid" class="form-label">Place your Bid</label>
+                <h5><label for="bid" class="form-label">Place your Bid :</label></h5>
+               <span><i>{{ listing.bids.count }} bid{{ listing.bids.count|pluralize }} so far.</i></span> 
+               {% if user == listing.price.user %}
+               <span><b><i>Your bid is the current bid.</i></b></span>
+               {% endif %}
                 <input type="number" class="form-control mb-3" id="bid" name="newbid" placeholder="Enter bid amount">
                 {% if user.is_authenticated %}
                 <button class="btn btn-primary">Place Bid</button>
