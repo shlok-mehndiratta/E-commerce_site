@@ -38,7 +38,11 @@
             <a class="nav-link" href="{% url 'create' %}">Create Listing</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'watchlist' %}">My Watchlist</a>
+            <a class="nav-link" href="{% url 'watchlist' %}">My Watchlist
+              <span class="position-absolute top-0 start-110 translate-middle m-1 badge bg-secondary">
+                {{user.userwatchlist.count}}
+              </span>
+            </a>
           </li>
         </ul>
 

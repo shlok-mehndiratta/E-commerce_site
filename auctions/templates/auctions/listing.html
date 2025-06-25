@@ -13,7 +13,7 @@
             {% if not isListingInWatchlist %}
             <button type="submit" class="btn btn-outline-success" name="todo" value="add">★ Add to Watchlist</button>
             {% else %}
-            <button type="submit" class="btn btn-outline-danger" name="todo" value="remove"> Remove from Watchlist</button>
+            <button type="submit" class="btn btn-outline-secondary" name="todo" value="remove"> Remove from Watchlist</button>
             {% endif %}
         </form>
 
@@ -59,7 +59,7 @@
                 {% csrf_token %}
                 <input type="hidden" name="id" value="{{ listing.id }}">
                 <h5><label for="bid" class="form-label">Place your Bid :</label></h5>
-               <span><i>{{ listing.bids.count }} bid{{ listing.bids.count|pluralize }} so far.</i></span> 
+               <span>{{ listing.bids.count }} bid{{ listing.bids.count|pluralize }} so far.</span> 
                {% if user == listing.price.user %}
                <span><b><i>Your bid is the current bid.</i></b></span>
                {% endif %}

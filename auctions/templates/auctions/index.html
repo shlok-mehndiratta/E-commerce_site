@@ -13,6 +13,7 @@
         </div>
         <div class="col-auto">
             <select name="category" id="category" class="form-select">
+                <option value="" disabled selected>--Select--</option>
                 {% for cat in categories %}
                     <option value="{{ cat }}">{{ cat }}</option>
                 {% endfor %}
