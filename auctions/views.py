@@ -15,7 +15,8 @@ def index(request):
     allcategories = Category.objects.all()
     return render(request, "auctions/index.html", {
         "listings": activelistings,
-        "categories": allcategories
+        "categories": allcategories,
+        "isActive": True,
     })
 
 
@@ -145,13 +146,19 @@ def listing(request, id):
 def displaycategory(request):
     if request.method == "POST":
         selected_cat = request.POST['category']
-        category = Category.objects.get(categoryName=selected_cat)
-        activelistings = Listings.objects.filter(isActive=True, category=category)
+        isActive = request.POST['isActive']
+        if selected_cat != "--Select--":
+            category = Category.objects.get(categoryName=selected_cat)
+            activelistings = Listings.objects.filter(isActive=isActive, category=category)
+        else:
+            activelistings = Listings.objects.filter(isActive=isActive)
         allcategories = Category.objects.all()
         return render(request, "auctions/index.html", {
             "listings": activelistings,
-            "categories": allcategories
+            "categories": allcategories,
+            "isActive": isActive == 'True',
         })
+
 
 def watchlist(request):
     if request.method == "POST":
@@ -223,3 +230,12 @@ def addcomment(request):
 
         return HttpResponseRedirect(reverse('listing', args=(id, )))
 
+
+def closedlistings(request):
+    activelistings = Listings.objects.filter(isActive=False)
+    allcategories = Category.objects.all()
+    return render(request, "auctions/index.html", {
+        "listings": activelistings,
+        "categories": allcategories,
+        "isActive": False,
+    })

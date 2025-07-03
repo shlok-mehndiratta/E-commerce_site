@@ -39,10 +39,13 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url 'watchlist' %}">My Watchlist
-              <span class="position-absolute top-0 start-110 translate-middle m-1 badge bg-secondary">
+              <span class="position-absolute top-0 start-110 translate-middle m-1 badge bg-secondary mx-1">
                 {{user.userwatchlist.count}}
               </span>
             </a>
+          </li>
+          <li class="nav-item mx-4">
+            <a class="nav-link" href="{% url 'closedlistings' %}">Closed Listings</a>
           </li>
         </ul>
 
@@ -50,6 +53,7 @@
           {% if user.is_authenticated %}
             <li class="nav-item">
             <span class="navbar-text text-light font-weight-light mr-3">
+                Signed in as &nbsp;
                 <i class="bi bi-person-circle mr-1"></i>
                 <strong>  {{ user.username }}</strong>
             </span>

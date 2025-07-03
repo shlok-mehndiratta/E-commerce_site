@@ -2,8 +2,11 @@
 
 {% block body %}
 <div class="container my-4">
-
+    {% if isActive == False %}
+    <h2 class="mb-4 text-danger">Closed Listings</h2>
+    {% else %}
     <h2 class="mb-4">🛍️ Active Listings</h2>
+    {% endif %}
 
     <!-- Category Filter -->
     <form action="{% url 'displaycategory' %}" method="post" class="row g-2 align-items-center mb-4">
@@ -13,12 +16,13 @@
         </div>
         <div class="col-auto">
             <select name="category" id="category" class="form-select">
-                <option value="" disabled selected>--Select--</option>
+                    <option >--Select--</option>
                 {% for cat in categories %}
                     <option value="{{ cat }}">{{ cat }}</option>
                 {% endfor %}
             </select>
         </div>
+        <input type="hidden" name="isActive" id="isActive" value="{{isActive}}">
         <div class="col-auto">
             <button type="submit" class="btn btn-warning">Apply</button>
         </div>
@@ -36,7 +40,11 @@
                     <h5 class="card-title">{{ item.title }}</h5>
                     <p class="card-text text-primary fw-bold mb-1">Price: ${{ item.price }}</p>
                     <p class="card-text text-muted" style="font-size: 0.95rem;">{{ item.description|truncatechars:100 }}</p>
+                    {% if item.isActive %}
                     <a href="{% url 'listing' id=item.id %}" class="btn btn-outline-primary w-100 mt-2">Place a Bid</a>
+                    {% else %}
+                    <a href="{% url 'listing' id=item.id %}" class="btn btn-outline-primary w-100 mt-2">View Auction details</a>
+                    {% endif %}
                 </div>
 
                 {% if item.category %}
