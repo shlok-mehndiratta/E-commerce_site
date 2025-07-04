@@ -16,7 +16,7 @@
         </div>
         <div class="col-auto">
             <select name="category" id="category" class="form-select">
-                    <option >--Select--</option>
+                    <option >--- All ---</option>
                 {% for cat in categories %}
                     <option value="{{ cat }}">{{ cat }}</option>
                 {% endfor %}
@@ -34,7 +34,7 @@
         <div class="col my-3">
             <div class="card h-100 shadow-sm border-0">
                 <img src="{{ item.imageUrl }}" class="card-img-top rounded-top" alt="No Image"
-                     style="object-fit: cover; height: 220px;">
+                     style="object-fit: cover; height: 280px;">
 
                 <div class="card-body">
                     <h5 class="card-title">{{ item.title }}</h5>

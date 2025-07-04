@@ -147,7 +147,7 @@ def displaycategory(request):
     if request.method == "POST":
         selected_cat = request.POST['category']
         isActive = request.POST['isActive']
-        if selected_cat != "--Select--":
+        if selected_cat != "--- All ---":
             category = Category.objects.get(categoryName=selected_cat)
             activelistings = Listings.objects.filter(isActive=isActive, category=category)
         else:
