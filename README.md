@@ -11,7 +11,7 @@ A full-featured online auction platform built using **Django** and **Bootstrap**
 
 ---
 
-## 📸 Demo Video https://youtu.be/mZBzNcrIWwc
+## 📸 Demo Video
 
 [![Watch the demo](https://img.youtube.com/vi/mZBzNcrIWwc/0.jpg)](https://www.youtube.com/watch?v=mZBzNcrIWwc)
 
