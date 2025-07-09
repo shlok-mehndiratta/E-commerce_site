@@ -66,7 +66,7 @@ Here’s a visual schema of the database models:
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/yourusername/ecommerce-site.git
+   git clone https://github.com/shlok-mehndiratta/ecommerce-site.git
    cd ecommerce-site
    ```
 
